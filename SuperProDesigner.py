@@ -4,8 +4,57 @@ from comtypes.automation import VARIANT, byref
 
 class SuperProDesigner:
     def __init__(self,tlb_path = r"C:\Program Files (x86)\Intelligen\SuperPro Designer\v10\Designer.tlb"):
-        self.Designer = comtypes.client.GetModule(tlb_path)
+        Designer = self.Designer = comtypes.client.GetModule(tlb_path)
         self.app = comtypes.client.CreateObject(self.Designer.Application)
+        
+        # Enumerators
+        self.enum_dict:dict[str,dict[str,tuple[int,int]]] = {
+            "flowsheet_CID": {
+                "unitProc_LID": (Designer.flowsheet_CID, Designer.unitProc_LID),  # Unit Procedure
+                "equipment_LID": (Designer.flowsheet_CID, Designer.equipment_LID),  # Equipment
+                "stream_LID": (Designer.flowsheet_CID, Designer.stream_LID),  # Streams
+                "inStream_LID": (Designer.flowsheet_CID, Designer.inStream_LID),  # Input Streams
+                "outStream_LID": (Designer.flowsheet_CID, Designer.outStream_LID),  # Output Streams
+                "pureComp_LID": (Designer.flowsheet_CID, Designer.pureComp_LID),  # Pure Components
+                "stockMix_LID": (Designer.flowsheet_CID, Designer.stockMix_LID),  # Stock Mixtures
+                "mainBranchSection_LID": (Designer.flowsheet_CID, Designer.mainBranchSection_LID),  # Main Branch Sections
+                "branch_LID": (Designer.flowsheet_CID, Designer.branch_LID),  # Branches
+                "labor_LID": (Designer.flowsheet_CID, Designer.labor_LID),  # Labors
+                "hxAgent_LID": (Designer.flowsheet_CID, Designer.hxAgent_LID),  # Heat Transfer Agent
+                "power_LID": (Designer.flowsheet_CID, Designer.power_LID),  # Power
+                "consumable_LID": (Designer.flowsheet_CID, Designer.consumable_LID),  # Consumables
+                "storageUnit_LID": (Designer.flowsheet_CID, Designer.storageUnit_LID)  # Storage units
+            },
+            "branch_CID": {
+                "section_LID": (Designer.branch_CID, Designer.section_LID)  # Sections
+            },
+            "mainBranchSection_CID": {
+                "unitProc_LID": (Designer.mainBranchSection_CID, Designer.unitProc_LID)  # Unit Procedures
+            },
+            "equipment_CID": {
+                "unitProc_LID": (Designer.equipment_CID, Designer.unitProc_LID),  # Unit Procedures
+                "variableId_LID": (Designer.equipment_CID, Designer.variableId_LID),  # Equip. Variable Ids
+                "staggeredEquip_LID": (Designer.equipment_CID, Designer.staggeredEquip_LID)  # Staggered Equipment
+            },
+            "unitProc_CID": {
+                "operation_LID": (Designer.unitProc_CID, Designer.operation_LID),  # Operations
+                "inStream_LID": (Designer.unitProc_CID, Designer.inStream_LID),  # Input Streams
+                "outStream_LID": (Designer.unitProc_CID, Designer.outStream_LID)  # Output Streams
+            },
+            "operation_CID": {
+                "reaction_LID": (Designer.operation_CID, Designer.reaction_LID),  # Reactions
+                "cleanStep_LID": (Designer.operation_CID, Designer.cleanStep_LID)  # CIP Cleaning Steps
+            },
+            "stream_CID": {
+                "pureComp_LID": (Designer.stream_CID, Designer.pureComp_LID),  # Pure Components
+                "stockMix_LID": (Designer.stream_CID, Designer.stockMix_LID),  # Stock Mixtures
+                "sourceOperation_LID": (Designer.stream_CID, Designer.sourceOperation_LID),  # Source Operation
+                "destinationOperation_LID": (Designer.stream_CID, Designer.destinationOperation_LID)  # Destination Operation
+            },
+            "stockMix_CID": {
+                "pureComp_LID": (Designer.stockMix_CID, Designer.pureComp_LID)  # Pure Components
+            }
+        }
 
     #Application Related Methods:
     """
@@ -20,7 +69,7 @@ class SuperProDesigner:
     def OpenDoc(self,fileName:str):
         # OpenDoc(fileName As String) This function is used to open the Pro-Designer file with name fileName, makes this file the active Document object, and returns a reference to the caller.
         self.doc = self.app.OpenDoc(fileName)
-        return self.doc
+        return SuperProDesignerDocument(self.doc)
     def SetActiveDoc(self,fileName:str):
         raise NotImplementedError()
         # SetActiveDoc(fileName As String) This function is used to activate the Pro-Designer file with name fileName and also returns a reference to this file as a Document object.
@@ -30,6 +79,9 @@ class SuperProDesigner:
         # CloseAllDocs(bSaveIfNeeded As Boolean) This subroutine is used to close all open Pro-Designer file (Document objects) Use bSaveIfNeeded = True for saving the Designer case files and bSaveIfNeeded = False for just closing the documents.
         return self.app.CloseAllDocs(bSaveIfNeeded)
 
+class SuperProDesignerDocument():
+    def __init__(self,doc):
+        self.doc = doc
     #Document Related Methods:
     """
     These methods are used for performing generic document tasks on specific Pro-Designer case files.
@@ -109,17 +161,41 @@ class SuperProDesigner:
     # Functions for Excel Data Link Variables
     # Functions for Excel Table Variables
 
+    # Enumerator
+    def Enumerator(self, ids:tuple[int,int], containerName1:str='',containerName2:str=''):
+        pos = VARIANT()
+        itemName = VARIANT()
+        containerID,listID = ids
+
+        if containerName2 == '':
+            cont = self.doc.StartEnumeration(byref(pos),listID,containerID,containerName1)
+            while cont:
+                cont = self.doc.GetNextItemName(byref(pos),byref(itemName),listID,containerID,containerName1)
+                yield itemName.value
+        else:
+            cont = self.doc.StartEnumeration2(byref(pos),listID,containerID,containerName1,containerName2)
+            while cont:
+                cont = self.doc.GetNextItemName2(byref(pos),byref(itemName),listID,containerID,containerName1,containerName2)
+                yield itemName.value
+
 if __name__ == "__main__":
     spd = SuperProDesigner()
-    superProDoc = spd.OpenDoc(r"C:\Users\mikbr\Desktop\SPD\COM\v1.spf")
-    print(superProDoc)
+    spd.ShowApp()
+    doc = spd.OpenDoc(r"C:\Users\mikbr\Desktop\SPD\COM\v1.spf")
 
-    print(spd.GetStreamVarVal("Dirty chokeberries",spd.Designer.massFlow_VID,""))
-    print(spd.SetStreamVarVal("Dirty chokeberries",spd.Designer.massFlow_VID,10,""))
-    print(spd.GetStreamVarVal("Dirty chokeberries",spd.Designer.massFlow_VID,""))
-    print(spd.SetStreamVarVal("Dirty chokeberries",spd.Designer.massFlow_VID,20,""))
-    print(spd.GetStreamVarVal("Dirty chokeberries",spd.Designer.massFlow_VID,""))
-    print(spd.DoMEBalances())
+    print(doc.GetStreamVarVal("Dirty chokeberries",spd.Designer.massFlow_VID,""))
+    print(doc.SetStreamVarVal("Dirty chokeberries",spd.Designer.massFlow_VID,10,""))
+    print(doc.GetStreamVarVal("Dirty chokeberries",spd.Designer.massFlow_VID,""))
+    print(doc.SetStreamVarVal("Dirty chokeberries",spd.Designer.massFlow_VID,20,""))
+    print(doc.GetStreamVarVal("Dirty chokeberries",spd.Designer.massFlow_VID,""))
+    print(doc.DoMEBalances())
+
+    for stream in doc.Enumerator(spd.enum_dict["flowsheet_CID"]["stream_LID"]):
+        print(stream)
+
     embed()
-    spd.CloseDoc(False)
+
+    input()
+    doc.CloseDoc(False)
+    input()
     spd.CloseApp()
