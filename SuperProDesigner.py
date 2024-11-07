@@ -140,6 +140,85 @@ class SuperProDesigner:
             "typeName_VID": Designer.typeName_VID,  # Equipment Type
             "typeID_VID": Designer.typeID_VID,  # Equipment Type ID
         }
+        self.init_vars:dict[str,int] = {
+            "autoInitMode_VID": Designer.autoInitMode_VID,              # Initialization Mode
+            "isSourceFileSame_VID": Designer.isSourceFileSame_VID,      # Is source the same file?
+            "bPartialPath_VID": Designer.bPartialPath_VID,              # Is Path Partial
+            "sourceFileName_VID": Designer.sourceFileName_VID,          # Source File Name
+            "sourceStreamName_VID": Designer.sourceStreamName_VID,      # Source Stream/Equipment Name
+            "bInitTotalMassFlow_VID": Designer.bInitTotalMassFlow_VID,  # Initialize Total Mass Flow
+            "totalFlowFactor_VID": Designer.totalFlowFactor_VID,        # Total Mass Flow Factor
+            "bInitComposition_VID": Designer.bInitComposition_VID,      # Initialize Composition
+            "bInitDensity_VID": Designer.bInitDensity_VID,              # Initialize Density / Thermo Data
+            "bInitTemperature_VID": Designer.bInitTemperature_VID,      # Initialize Temperature
+            "bInitPressure_VID": Designer.bInitPressure_VID,            # Initialize Pressure
+            "bInitEntityData_VID": Designer.bInitEntityData_VID,        # Initialize Discrete Entity Data
+            "solveAutoInitMode_VID": Designer.solveAutoInitMode_VID     # Before solving M&E balances auto initialization Mode
+        }
+
+        self.operation_vars:dict[str,int] = {
+            "startTime_VID": Designer.startTime_VID,      # Operation Start Time
+            "endTime_VID": Designer.endTime_VID,          # Operation End Time
+            "setUpTime_VID": Designer.setUpTime_VID,      # Operation Set Up Time
+            "processTime_VID": Designer.processTime_VID,  # Operation Process Time
+            "holdupTime_VID": Designer.holdupTime_VID,    # Operation Holdup Time
+            "turnaroundTime_VID": Designer.turnaroundTime_VID,  # Operation Turnaround Time
+            "processTimeCalcMode_VID": Designer.processTimeCalcMode_VID,  # Process Time Calculation Mode
+            "timeShift_VID": Designer.timeShift_VID,      # Operation Start Time Shift
+            "thermalMode_VID": Designer.thermalMode_VID,  # Thermal Mode
+            "exitTemperature_VID": Designer.exitTemperature_VID,  # Exit Temperature
+            "heatingDuty_VID": Designer.heatingDuty_VID,  # Heating Duty
+            "coolingDuty_VID": Designer.coolingDuty_VID,  # Cooling Duty
+            "primaryHxAgentName_VID": Designer.primaryHxAgentName_VID,  # Primary Heat Transfer Agent Name
+            "primaryHxAgentRate_VID": Designer.primaryHxAgentRate_VID,  # Primary Heat Transfer Agent Rate
+            "primaryHxAgentDuty_VID": Designer.primaryHxAgentDuty_VID,  # Primary Heat Transfer Agent Duty
+            "isPrimaryHxAgentHeating_VID": Designer.isPrimaryHxAgentHeating_VID,  # Is Primary Heat Transfer Agent Heating or Cooling?
+            "powerCalcMode_VID": Designer.powerCalcMode_VID,  # Power Calculation Mode
+            "power_VID": Designer.power_VID,              # Power
+            "specPower_VID": Designer.specPower_VID,      # Specific Power
+            "powerPerUnit_VID": Designer.powerPerUnit_VID,  # Power per Unit
+            "powerDissipationFrac_VID": Designer.powerDissipationFrac_VID,  # Power Dissipation to Heat
+            "opType_VID": Designer.opType_VID,            # Operation Type
+            "opDescr_VID": Designer.opDescr_VID,          # Operation Description
+            "isOpDescrSetByUser_VID": Designer.isOpDescrSetByUser_VID,  # Is Operation Description Set By User
+            "auxEquipName_VID": Designer.auxEquipName_VID,  # Auxiliary Equipment Name used by Operation
+            "comments_VID": Designer.comments_VID,        # User Comments
+            "laborNeed_VID": Designer.laborNeed_VID,      # Labor Need
+            "laborUnits_VID": Designer.laborUnits_VID,    # Labor Units
+            "bIsVentOn_VID": Designer.bIsVentOn_VID,      # Is Vent On
+            "emissionsFracs_VID": Designer.emissionsFracs_VID  # Emission Fractions
+        }
+
+        self.operations:dict[str,dict[str,int]] = {
+            "generic_wash":{
+                "operatingOption_VID": Designer.operatingOption_VID,    # Operating Option
+                "volumeSpecOption_VID": Designer.volumeSpecOption_VID,  # Volume Specification Option
+                "massBefore_VID": Designer.massBefore_VID,              # Contained Amount Before
+                "removalFrac_VID": Designer.removalFrac_VID,            # Loss Fraction
+                "massAfter_VID": Designer.massAfter_VID,                # Contained Amount After
+                "washVolFlow_VID": Designer.washVolFlow_VID,            # Wash Volumetric Flowrate
+                "washLossFrac_VID": Designer.washLossFrac_VID           # Wash Loss Fraction
+            },
+            "component_splitter":{
+                "componentSplits_VID": Designer.componentSplits_VID,  # Component splits
+                "bIsSplitToTopStream_VID": Designer.bIsSplitToTopStream_VID,  # Is splitting to top stream
+                "bIsComponentSplit_VID": Designer.bIsComponentSplit_VID,  # Is component fraction split or flow split
+                "componentFlow_VID": Designer.componentFlow_VID,  # Component Flow
+            },
+            "material_wash":{
+                "flowrateOption_VID": Designer.flowrateOption_VID,   # Volume spec type
+                "componentSplits_VID": Designer.componentSplits_VID, # Component fraction
+                "washVolume_VID": Designer.washVolume_VID,           # Wash-in volume amount
+                "relativeWashVolume_VID": Designer.relativeWashVolume_VID, # Relative wash-in volume amount
+                "conversion_VID": Designer.conversion_VID,           # Equilibrium approach [0,1]
+                "throughput_VID": Designer.throughput_VID,           # Throughput
+                "temperature_VID": Designer.temperature_VID,         # Product stream temperature
+                "isConversionSetByUser_VID": Designer.isConversionSetByUser_VID, # Is approach to equilibrium set by user?
+                "bIgnoreEB_VID": Designer.bIgnoreEB_VID,             # Ignore energy balance?
+                "retainedWashFrac_VID": Designer.retainedWashFrac_VID # Fraction of wash retained by the product
+            }
+        }
+
 
 
     #Application Related Methods:
@@ -151,22 +230,29 @@ class SuperProDesigner:
         ShowApp( ) This subroutine is used to activate the Pro-Designer application and display it in its current size position.
         """
         return self.app.ShowApp()
+
     def CloseApp(self):
         """
         CloseApp( ) This subroutine is used to close the Pro-Designer application. If there are Pro-Designer case files still open it will close all the documents without saving them.
         """
         return self.app.CloseApp()
+
     def OpenDoc(self,fileName:str):
         """
         OpenDoc(fileName As String) This function is used to open the Pro-Designer file with name fileName, makes this file the active Document object, and returns a reference to the caller.
         """
         self.doc = self.app.OpenDoc(fileName)
         return SuperProDesignerDocument(self,self.doc)
+
     def SetActiveDoc(self,fileName:str):
         """
         SetActiveDoc(fileName As String) This function is used to activate the Pro-Designer file with name fileName and also returns a reference to this file as a Document object.
         """
-        return self.app.SetActiveDoc(fileName)
+        raise NotImplementedError()
+        self.doc = self.app.SetActiveDoc(fileName)
+        print(self.doc)
+        return SuperProDesignerDocument(self,self.doc)
+
     def CloseAllDocs(self,bSaveIfNeeded:bool):
         """
         CloseAllDocs(bSaveIfNeeded As Boolean) This subroutine is used to close all open Pro-Designer file (Document objects) Use bSaveIfNeeded = True for saving the Designer case files and bSaveIfNeeded = False for just closing the documents.
@@ -230,12 +316,11 @@ class SuperProDesignerDocument():
         """
         return self.doc.RenameProcedure(oldName, newName)
 
-    def RenameOperation(self):
+    def RenameOperation(self, procedureName:str, oldName:str, newName:str):
         """
         RenameOperation(procedureName As String, oldName As String, newName As String)
         """
-        raise NotImplementedError()
-        return self.doc.RenameOperation()
+        return self.doc.RenameOperation(procedureName, oldName, newName)
 
     def RenameStream(self,oldName:str, newName:str):
         """
@@ -318,8 +403,27 @@ class SuperProDesignerDocument():
         raise NotImplementedError()
         return self.doc.SetEquipVarVal3()
 
-    # Functions for Operation Variables
-    
+    def GetOperVarVal(self):
+        """
+        GetOperVarVal(procName As String, operName As String, VarID As VarID, val)
+        """
+        #GetOperVarVal2(procName As String, operName As String, VarID As VarID, val, val2)
+        #GetOperVarVal3(procName As String, operName As String, VarID As VarID, val, val2, val3) 
+        raise NotImplementedError
+        return self.doc.GetOperVarVal()
+
+    def SetOperVarVal(self, procName:str, operName:str, VarID:int, val, val2=None, val3=None):
+        """
+        SetOperVarVal(procName As String, operName As String, VarID As VarID, val)
+        SetOperVarVal2(procName As String, operName As String, VarID As VarID, val, val2)
+        SetOperVarVal3(procName As String, operName As String, VarID As VarID, val, val2, val3)
+        """
+        if val3 != None:return self.doc.SetOperVarVal3(procName, operName, VarID, val, val2, val3)
+        if val2 != None:return self.doc.SetOperVarVal2(procName, operName, VarID, val, val2)
+        if val != None:return self.doc.SetOperVarVal(procName, operName, VarID, val)
+        return False
+
+
     # Functions for Stream Variables
     """
     The following functions can be used for setting or retrieving variables that refer to a specific stream (input /output /intermediate) that is included in the process file:
@@ -368,6 +472,50 @@ class SuperProDesignerDocument():
     # Functions for Report Option Variables
     # Functions for Excel Data Link Variables
     # Functions for Excel Table Variables
+
+    # Initialization
+    def GetStreamAutoInitOptions(self):
+        """
+        GetStreamAutoInitOptions(streamName As String, varID As VarID, val) With this function you may retrieve all relevant setting that appear in the Input Stream Initialization Options Dialog.. The streamName is the name of the stream you wish to auto initialize. For a list of the Variable ID’s that can be used with this function , see Auto Initialization Variables.
+        """
+        raise NotImplementedError()
+        return self.doc.GetStreamAutoInitOptions()
+
+    def SetStreamAutoInitOptions(self,streamName:str,varID:int,val):
+        """
+        SetStreamAutoInitOptions(streamName As String, varID As VarID, val) With this function you may set all relevant setting that appear in the Input Stream Initialization Options Dialog. The streamName is the name of the stream <stream1> you wish to auto initialize by another stream <stream2> which you may also set in this function through the VARIANT val argument. For a list of the Variable ID’s that can be used with this function, see Auto Initialization Variables.
+        """
+        return self.doc.SetStreamAutoInitOptions(streamName,varID,val)
+
+    def AutoInitStream(self,streamName:str):
+        """
+        AutoInitStream(streamName As String) This function is used to Automatically initialize the contents of the stream when the Auto-Initialize from Other Stream option has been checked, in the Input Stream Initialization Options Dialog.
+        """
+        return self.doc.AutoInitStream(streamName)
+
+    def AutoInitAllStreamsAndEquipContents(self):
+        """
+        AutoInitAllStreamsAndEquipContents This function can also be used to auto initialize all the streams and equipment contents that have been set to be initialized by other sources.
+        """
+        raise NotImplementedError()
+        return self.doc.AutoInitAllStreamsAndEquipContents()
+
+    # Errors
+    def GetCOMErrorMsg(self):
+        """
+        GetCOMErrorMsg(val) This function returns True if it was successful in obtaining the error message and False if it was not. The argument val (which must be defined as a Variant) contains the string with the error message.
+        """
+        out_var = VARIANT()
+        if not self.doc.GetCOMErrorMsg(byref(out_var)): return False
+        assert isinstance(out_var.value,str),type(out_var.value)
+        return out_var.value
+        
+    def IsCOMSimDataComplete(self):
+        """
+        IsCOMSimDataComplete() This function returns  True if the data exchange using the COM functions was consistent. If the function returns False it means that some data that you have set using the COM functions is inconsistent and that you cannot proceed with the simulation. In this case you can use the GetCOMErrorMsg(val) to find out what went wrong.
+        """
+        raise NotImplementedError()
+        return self.doc.IsCOMSimDataComplete()
 
     # Enumerator
     def Enumerator(self, ids:tuple[int,int], containerName1:str='',containerName2:str=''):
@@ -429,6 +577,14 @@ class Stream:
         assert self.is_input_stream
         return self.doc.IsInputStreamCompositionValid(self.name)
 
+    @property
+    def massFlow(self):
+        return self.doc.GetStreamVarVal(self.name,self.app.stream_vars["massFlow_VID"])
+    @massFlow.setter
+    def massFlow(self,val:float):
+        assert self.is_input_stream
+        return self.doc.SetStreamVarVal(self.name,self.app.stream_vars["massFlow_VID"],val)
+
 class Procedure:
     def __init__(self,doc:SuperProDesignerDocument,initialName:str):
         self.app = doc.app
@@ -457,6 +613,9 @@ class Procedure:
         if not self.doc.SetUPVarVal(self.name,self.app.procedure_vars["description_VID"],newDescription): raise NameError("Desription failed to assign?")
         self._description = newDescription
 
+    def Operation(self,initialName:str):
+        return Operation(self,initialName)
+
 class Equipment:
     def __init__(self,doc:SuperProDesignerDocument,initialName:str):
         self.app = doc.app
@@ -482,6 +641,24 @@ class Equipment:
         if not self.doc.SetEquipVarVal(self.name,self.app.equipment_vars["description_VID"],newDescription): raise NameError("Desription failed to assign?")
         self._description = newDescription
 
+class Operation:
+    def __init__(self,proc:Procedure,initialName:str):
+        self.app = proc.doc.app
+        self.doc = proc.doc
+        self.proc = proc
+        self._name = initialName
+
+    @property
+    def name(self):
+        return self._name
+    
+    @name.setter
+    def name(self,newName:str):
+        if not self.doc.RenameOperation(self.proc.name,self.name,newName): raise NameError("Operation name already exists")
+        self._name = newName
+
+    def SetOperVarVal(self, VarID:int, val, val2=None, val3=None):
+        return self.doc.SetOperVarVal(self.proc.name, self.name, VarID, val, val2, val3)
 
 if __name__ == "__main__":
     spd = SuperProDesigner()
